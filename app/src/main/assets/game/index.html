@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OPERATION: EMBERWATCH 3D</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #111417;
+      font-family: 'Courier New', Courier, monospace;
+      color: #F0E9DB;
+    }
+    #game-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    /* HUD OVERLAYS - Low occlusion, 85%+ viewport clear */
+    .hud-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hud-interactive {
+      pointer-events: auto;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .mission-badge {
+      background: rgba(32, 38, 44, 0.88);
+      border: 1.5px solid #38434E;
+      border-left: 4px solid #E7A83E;
+      border-radius: 6px;
+      padding: 8px 14px;
+      max-width: 320px;
+    }
+    .badge-sub {
+      font-size: 10px;
+      color: #E7A83E;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .badge-title {
+      font-size: 13px;
+      color: #F0E9DB;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+    .badge-detail {
+      font-size: 11px;
+      color: #81919E;
+      margin-top: 2px;
+    }
+
+    .telemetry-panel {
+      background: rgba(32, 38, 44, 0.88);
+      border: 1.5px solid #38434E;
+      border-radius: 6px;
+      padding: 8px 14px;
+      text-align: right;
+    }
+    .health-bar-container {
+      width: 110px;
+      height: 8px;
+      background: #1B2822;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+      border: 1px solid #38434E;
+    }
+    .health-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: #667353;
+      transition: width 0.2s ease;
+    }
+    .ammo-display {
+      font-size: 14px;
+      color: #E7A83E;
+      font-weight: bold;
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
+
+    /* CROSSHAIR */
+    .crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 22px;
+      height: 22px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0.75;
+    }
+    .crosshair::before, .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #E7A83E;
+    }
+    .crosshair::before {
+      top: 10px;
+      left: 0;
+      width: 22px;
+      height: 2px;
+    }
+    .crosshair::after {
+      top: 0;
+      left: 10px;
+      width: 2px;
+      height: 22px;
+    }
+    .crosshair-dot {
+      position: absolute;
+      top: 9px;
+      left: 9px;
+      width: 4px;
+      height: 4px;
+      background: #E7A83E;
+      border-radius: 50%;
+    }
+
+    /* TOUCH CONTROLS */
+    /* Virtual Joystick Area (Bottom Left) */
+    #joystick-zone {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(32, 38, 44, 0.45);
+      border: 2px solid rgba(129, 145, 158, 0.4);
+      pointer-events: auto;
+      touch-action: none;
+    }
+    #joystick-knob {
+      position: absolute;
+      top: 42px;
+      left: 42px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(32, 38, 44, 0.9);
+      border: 2px solid #E7A83E;
+      box-shadow: 0 0 10px rgba(231, 168, 62, 0.3);
+      pointer-events: none;
+    }
+
+    /* Right Orbit / Aim Zone */
+    #aim-touch-zone {
+      position: absolute;
+      top: 80px;
+      bottom: 0;
+      right: 0;
+      width: 55%;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    /* Action Buttons (Bottom Right) */
+    .action-cluster {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    .action-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-action {
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      color: #111417;
+      font-family: inherit;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      active {
+        transform: scale(0.92);
+      }
+    }
+    .btn-fire {
+      width: 72px;
+      height: 72px;
+      background: #E7A83E;
+      border: 2px solid #F0E9DB;
+      font-size: 13px;
+    }
+    .btn-secondary {
+      width: 54px;
+      height: 54px;
+      background: rgba(42, 50, 58, 0.95);
+      border: 1.5px solid #81919E;
+      color: #F0E9DB;
+      font-size: 11px;
+    }
+    .btn-secondary:active, .btn-fire:active {
+      transform: scale(0.92);
+      filter: brightness(1.2);
+    }
+    .btn-interact {
+      background: #38D39F;
+      color: #111417;
+      border: 2px solid #F0E9DB;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 14px rgba(56, 211, 159, 0.5);
+      animation: pulse-glow 1.5s infinite;
+      display: none;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(56, 211, 159, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(56, 211, 159, 0.8); }
+    }
+
+    /* DIALOGUE MODAL */
+    #dialogue-modal {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      background: rgba(32, 38, 44, 0.96);
+      border: 2px solid #E7A83E;
+      border-radius: 12px;
+      padding: 18px;
+      display: none;
+      z-index: 100;
+      pointer-events: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .dialogue-speaker {
+      color: #E7A83E;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .dialogue-text {
+      color: #F0E9DB;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+    .dialogue-btn {
+      background: #E7A83E;
+      color: #111417;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: bold;
+      float: right;
+      cursor: pointer;
+    }
+
+    /* TACTICAL CHOICE MODAL */
+    #choice-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 580px;
+      background: rgba(32, 38, 44, 0.98);
+      border: 2px solid #C84C4C;
+      border-radius: 12px;
+      padding: 22px;
+      display: none;
+      z-index: 200;
+      pointer-events: auto;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(200, 76, 76, 0.5);
+    }
+    .choice-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .choice-card {
+      background: #20262C;
+      border: 1.5px solid #81919E;
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .choice-card:active {
+      transform: scale(0.97);
+    }
+    .choice-card.civilians {
+      border-color: #667353;
+    }
+    .choice-card.intel {
+      border-color: #E7A83E;
+    }
+
+    /* MISSION COMPLETE OVERLAY */
+    #victory-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(32, 38, 44, 0.98);
+      border: 2px solid #38D39F;
+      border-radius: 14px;
+      padding: 24px;
+      display: none;
+      z-index: 300;
+      pointer-events: auto;
+      text-align: center;
+    }
+
+    /* DAMAGE VIGNETTE */
+    #damage-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, transparent 60%, rgba(200, 76, 76, 0.6) 100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease-out;
+      z-index: 5;
+    }
+
+    /* RADAR SCANNER OVERLAY */
+    #scanner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      border: 2px solid transparent;
+      z-index: 4;
+      transition: border-color 0.3s;
+    }
+    .scanner-active {
+      border-color: rgba(56, 211, 159, 0.4) !important;
+      box-shadow: inset 0 0 40px rgba(56, 211, 159, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <!-- 3D WebGL Canvas Container -->
+  <div id="game-container"></div>
+  <div id="damage-flash"></div>
+  <div id="scanner-overlay"></div>
+
+  <!-- HUD Overlay -->
+  <div class="hud-layer">
+    <!-- Top Telemetry & Objective Bar -->
+    <div class="top-bar">
+      <div class="mission-badge">
+        <div class="badge-sub">TACTICAL OBJECTIVE</div>
+        <div id="hud-obj-title" class="badge-title">REPORT TO TOMAS VALE</div>
+        <div id="hud-obj-detail" class="badge-detail">Navigate the obstacle gauntlet to the forward scout post.</div>
+      </div>
+
+      <div class="telemetry-panel">
+        <div style="font-size: 11px; color: #81919E; font-weight: bold;">OPERATIVE VITALITY</div>
+        <div class="health-bar-container">
+          <div id="hud-health-bar" class="health-bar-fill"></div>
+        </div>
+        <div id="hud-ammo-display" class="ammo-display">30 / 120</div>
+      </div>
+    </div>
+
+    <!-- Central Reticle -->
+    <div class="crosshair">
+      <div class="crosshair-dot"></div>
+    </div>
+
+    <!-- Virtual Joystick for 3D Movement -->
+    <div id="joystick-zone">
+      <div id="joystick-knob"></div>
+    </div>
+
+    <!-- Touch Aim Region for Camera Orbit & Look -->
+    <div id="aim-touch-zone"></div>
+
+    <!-- Action Buttons Cluster -->
+    <div class="action-cluster">
+      <button id="btn-interact" class="hud-interactive btn-interact">INTERACT [TOMAS]</button>
+
+      <div class="action-row">
+        <button id="btn-scan" class="hud-interactive btn-action btn-secondary">
+          SCAN
+        </button>
+        <button id="btn-jump" class="hud-interactive btn-action btn-secondary">
+          JUMP
+        </button>
+        <button id="btn-fire" class="hud-interactive btn-action btn-fire">
+          FIRE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialogue Transmission Modal -->
+  <div id="dialogue-modal">
+    <div id="dialogue-speaker" class="dialogue-speaker">CAPTAIN MARA VOSS</div>
+    <div id="dialogue-text" class="dialogue-text">Spectre, the regional grid is down. Connect with Tomas and neutralize hostile drones.</div>
+    <button id="dialogue-next-btn" class="dialogue-btn">CONFIRM</button>
+  </div>
+
+  <!-- Critical Branching Decision Modal -->
+  <div id="choice-modal">
+    <div style="font-size: 16px; font-weight: bold; color: #C84C4C; letter-spacing: 1.5px;">CRITICAL EMERGENCY OVERRIDE</div>
+    <div style="font-size: 12px; color: #F0E9DB; margin-top: 8px;">Auxiliary generator is venting coolant into the civilian shelter while saboteurs wipe stolen cipher frequency drives.</div>
+    <div class="choice-options-grid">
+      <div id="choice-civilians-btn" class="choice-card civilians">
+        <div style="font-size: 11px; font-weight: bold; color: #667353;">PROTOCOL ALPHA</div>
+        <div style="font-size: 13px; font-weight: bold; color: #F0E9DB; margin-top: 4px;">SAFEGUARD CIVILIANS</div>
+        <div style="font-size: 11px; color: #81919E; margin-top: 6px;">Vent pressure away from 40 trapped families. (+Morale, +Voss & Idris Trust)</div>
+      </div>
+      <div id="choice-intel-btn" class="choice-card intel">
+        <div style="font-size: 11px; font-weight: bold; color: #E7A83E;">PROTOCOL BRAVO</div>
+        <div style="font-size: 13px; font-weight: bold; color: #F0E9DB; margin-top: 4px;">INTERCEPT ENCRYPTED DATA</div>
+        <div style="font-size: 11px; color: #81919E; margin-top: 6px;">Overclock receiver to capture the enemy frequency codes. (+Intel, -Rowan Rivalry)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission Success Victory Modal -->
+  <div id="victory-modal">
+    <div style="font-size: 20px; font-weight: bold; color: #38D39F; letter-spacing: 2px;">EXTRACTION COMPLETE</div>
+    <div style="font-size: 12px; color: #E7A83E; margin-top: 4px; font-weight: bold;">OPERATION: EMBERWATCH // CHAPTER 1 DEBRIEF</div>
+    <div style="font-size: 13px; color: #F0E9DB; margin: 16px 0; line-height: 1.5;">
+      Relay Tower Alpha secured. Hostile reconnaissance drones eliminated. Cadet Operative promotion approved.
+    </div>
+    <button id="victory-continue-btn" class="dialogue-btn" style="float: none; width: 100%; padding: 12px; font-size: 13px;">
+      TRANSMIT TO HEADQUARTERS
+    </button>
+  </div>
+
+  <!-- Load bundled local Three.js -->
+  <script src="three.min.js"></script>
+  <!-- Load complete 3D game logic -->
+  <script src="game.js"></script>
+</body>
+</html>

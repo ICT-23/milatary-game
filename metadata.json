@@ -1,0 +1,6 @@
+{
+  "name": "Emberwatch",
+  "description": "Operation: Emberwatch is a tactical military action and simulation game where recruits become field operatives in an original coastal storyline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
