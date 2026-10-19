@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Operation: Emberwatch",
+    "slug": "operation-emberwatch",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "emberwatch",
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#0A1215",
+      "resizeMode": "contain"
+    },
+    "android": {
+      "package": "com.emberwatch.game",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A1215"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.emberwatch.game"
+    },
+    "icon": "./assets/icon.png"
+  }
+}

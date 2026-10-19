@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Expo / React Native
+.expo/
+dist/
+web-build/
+android/
+ios/
+
+# Environment variables
+.env
+.env*.local
+
+# System & Editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Keystores & sensitive credentials
+*.jks
+*.p8
+*.p12
+*.key
+*.keystore
+*.mobileprovision
