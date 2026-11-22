@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.game.CampaignLoopStage
 import com.example.game.InteractiveTarget
 import com.example.game.TacticalObjective
 import com.example.ui.theme.AlertRed
@@ -47,6 +48,7 @@ import com.example.ui.theme.DeepGraphite
 import com.example.ui.theme.DeepGraphiteBorder
 import com.example.ui.theme.DeepGraphiteElevated
 import com.example.ui.theme.FieldOlive
+import com.example.ui.theme.RadarCyan
 import com.example.ui.theme.SignalAmber
 import com.example.ui.theme.WeatheredIvory
 
@@ -56,6 +58,7 @@ fun TacticalHud(
     health: Int,
     morale: Int,
     currentObjective: TacticalObjective?,
+    loopStage: CampaignLoopStage?,
     nearestTarget: InteractiveTarget?,
     scannerCooldownSec: Float,
     timeElapsedSeconds: Float,
@@ -132,6 +135,17 @@ fun TacticalHud(
                         color = CoolSteel,
                         maxLines = 1
                     )
+                    if (loopStage != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "CORE LOOP ${loopStage.step}/${CampaignLoopStage.TOTAL_STEPS} · ${loopStage.displayName}",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp,
+                            color = RadarCyan,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
 

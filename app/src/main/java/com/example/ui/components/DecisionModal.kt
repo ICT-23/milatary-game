@@ -206,6 +206,35 @@ private fun ChoiceCard(
                 fontSize = 11.sp,
                 lineHeight = 15.sp
             )
+
+            // Projected consequences, so the dilemma is judged with open eyes.
+            val consequences = mutableListOf<String>()
+            if (option.vossTrustDelta != 0) {
+                consequences.add("${signedDelta(option.vossTrustDelta)} VOSS TRUST")
+            }
+            if (option.idrisRespectDelta != 0) {
+                consequences.add("${signedDelta(option.idrisRespectDelta)} IDRIS RESPECT")
+            }
+            if (option.kadeRivalryDelta != 0) {
+                consequences.add("${signedDelta(option.kadeRivalryDelta)} KADE RIVALRY")
+            }
+            if (option.intelDelta != 0) {
+                consequences.add("${signedDelta(option.intelDelta)} INTEL")
+            }
+            if (consequences.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = consequences.joinToString("  ·  "),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 9.sp,
+                    lineHeight = 13.sp,
+                    color = accentColor
+                )
+            }
         }
     }
 }
+
+/** "+15" for a gain, "-5" for a cost. */
+private fun signedDelta(value: Int): String = if (value > 0) "+$value" else value.toString()

@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import com.example.game.GameEngine
 import com.example.game.InteractiveTarget
 import com.example.game.InteractiveType
+import com.example.game.ObstacleRect
 import com.example.game.Vector2
 import com.example.ui.theme.AlertRed
 import com.example.ui.theme.CoolSteel
@@ -28,6 +29,7 @@ import com.example.ui.theme.SandMuted
 import com.example.ui.theme.SignalAmber
 import com.example.ui.theme.WarmSand
 import com.example.ui.theme.WeatheredIvory
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -80,7 +82,7 @@ fun MissionCanvasView(
             // Patrol road / gravel path from Outpost to Relay and Extraction
             val pathRoad = Path().apply {
                 moveTo(160f - camX, 320f - camY)
-                lineTo(380f - camX, 300f - camY)
+                lineTo(400f - camX, 385f - camY)
                 lineTo(600f - camX, 240f - camY)
                 lineTo(850f - camX, 490f - camY)
                 lineTo(980f - camX, 560f - camY)
@@ -185,9 +187,9 @@ fun MissionCanvasView(
             )
 
             // 4. SQUAD MEMBERS & RECON NPC
-            // Tomas Vale (Recon)
-            val tomasX = 380f - camX
-            val tomasY = 300f - camY
+            // Tomas Vale (Recon) - posted behind the sandbag emplacement
+            val tomasX = 400f - camX
+            val tomasY = 385f - camY
             drawCircle(
                 color = Color.Black.copy(alpha = 0.3f),
                 radius = 16f,
@@ -264,27 +266,38 @@ fun MissionCanvasView(
             val playerCenter = Offset(playerScreenX, playerScreenY)
             val angle = engine.playerFacingAngleRad
 
-            // Field-of-View Cone (Wedge in front of player)
+            // Field-of-View Cone, clipped by line of sight against structures
             val coneDistance = 140f
             val coneSpreadAngle = 0.55f // ~32 degrees each side
-            val leftAngle = angle - coneSpreadAngle
-            val rightAngle = angle + coneSpreadAngle
+            val raySteps = 28
 
             val conePath = Path().apply {
                 moveTo(playerScreenX, playerScreenY)
-                lineTo(
-                    playerScreenX + cos(leftAngle) * coneDistance,
-                    playerScreenY + sin(leftAngle) * coneDistance
-                )
-                lineTo(
-                    playerScreenX + cos(rightAngle) * coneDistance,
-                    playerScreenY + sin(rightAngle) * coneDistance
-                )
+                for (step in 0..raySteps) {
+                    val rayAngle = angle - coneSpreadAngle +
+                        (2f * coneSpreadAngle) * (step.toFloat() / raySteps)
+                    val dirX = cos(rayAngle)
+                    val dirY = sin(rayAngle)
+                    val reach = rayCastDistance(
+                        originX = engine.playerPos.x,
+                        originY = engine.playerPos.y,
+                        dirX = dirX,
+                        dirY = dirY,
+                        obstacles = engine.obstacles,
+                        maxDistance = coneDistance
+                    )
+                    lineTo(playerScreenX + dirX * reach, playerScreenY + dirY * reach)
+                }
                 close()
             }
             drawPath(
                 path = conePath,
                 color = SignalAmber.copy(alpha = 0.12f)
+            )
+            drawPath(
+                path = conePath,
+                color = SignalAmber.copy(alpha = 0.32f),
+                style = Stroke(width = 1.5f)
             )
 
             // Player Drop Shadow
@@ -320,4 +333,47 @@ fun MissionCanvasView(
             )
         }
     }
+}
+
+/**
+ * Distance along a normalised ray to the first structure edge, or [maxDistance]
+ * when nothing stands in the way. Slab test against each axis-aligned structure,
+ * so the vision cone is clipped by line of sight instead of shining through walls.
+ */
+private fun rayCastDistance(
+    originX: Float,
+    originY: Float,
+    dirX: Float,
+    dirY: Float,
+    obstacles: List<ObstacleRect>,
+    maxDistance: Float
+): Float {
+    var nearest = maxDistance
+    for (obs in obstacles) {
+        var tMin = 0f
+        var tMax = nearest
+
+        if (abs(dirX) < 1e-5f) {
+            if (originX < obs.left || originX > obs.right) continue
+        } else {
+            val t1 = (obs.left - originX) / dirX
+            val t2 = (obs.right - originX) / dirX
+            tMin = maxOf(tMin, minOf(t1, t2))
+            tMax = minOf(tMax, maxOf(t1, t2))
+            if (tMin > tMax) continue
+        }
+
+        if (abs(dirY) < 1e-5f) {
+            if (originY < obs.top || originY > obs.bottom) continue
+        } else {
+            val t1 = (obs.top - originY) / dirY
+            val t2 = (obs.bottom - originY) / dirY
+            tMin = maxOf(tMin, minOf(t1, t2))
+            tMax = minOf(tMax, maxOf(t1, t2))
+            if (tMin > tMax) continue
+        }
+
+        if (tMin >= 0f && tMin < nearest) nearest = tMin
+    }
+    return nearest
 }

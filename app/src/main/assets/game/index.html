@@ -35,7 +35,7 @@
       display: block;
     }
 
-    /* HUD OVERLAYS - Low occlusion, 85%+ viewport clear */
+    /* HUD LAYER */
     .hud-layer {
       position: absolute;
       top: 0;
@@ -45,77 +45,201 @@
       z-index: 10;
       pointer-events: none;
     }
-    .hud-interactive {
-      pointer-events: auto;
-    }
+    .hud-interactive { pointer-events: auto; }
 
     /* TOP BAR */
     .top-bar {
       position: absolute;
-      top: 14px;
-      left: 16px;
-      right: 16px;
+      top: 12px;
+      left: 14px;
+      right: 14px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 10px;
     }
     .mission-badge {
-      background: rgba(32, 38, 44, 0.88);
+      background: rgba(32, 38, 44, 0.9);
       border: 1.5px solid #38434E;
       border-left: 4px solid #E7A83E;
       border-radius: 6px;
-      padding: 8px 14px;
-      max-width: 320px;
+      padding: 7px 12px;
+      max-width: 300px;
     }
     .badge-sub {
-      font-size: 10px;
+      font-size: 9px;
       color: #E7A83E;
       font-weight: bold;
       letter-spacing: 1px;
     }
     .badge-title {
-      font-size: 13px;
+      font-size: 12px;
       color: #F0E9DB;
       font-weight: bold;
       margin-top: 2px;
     }
     .badge-detail {
-      font-size: 11px;
-      color: #81919E;
+      font-size: 10px;
+      color: #9AA8B5;
       margin-top: 2px;
+      line-height: 1.3;
+    }
+    .badge-progress {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: bold;
+      color: #38D39F;
+      margin-top: 4px;
+      letter-spacing: 1px;
     }
 
     .telemetry-panel {
-      background: rgba(32, 38, 44, 0.88);
+      background: rgba(32, 38, 44, 0.9);
       border: 1.5px solid #38434E;
       border-radius: 6px;
-      padding: 8px 14px;
+      padding: 6px 10px;
+      min-width: 136px;
       text-align: right;
     }
+    .telemetry-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .telemetry-label {
+      font-size: 9px;
+      color: #81919E;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    #btn-pause {
+      pointer-events: auto;
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      border: 1px solid #81919E;
+      background: rgba(42, 50, 58, 0.95);
+      color: #F0E9DB;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+    }
+    #btn-pause:active { transform: scale(0.92); }
     .health-bar-container {
-      width: 110px;
+      width: 118px;
       height: 8px;
       background: #1B2822;
       border-radius: 4px;
       overflow: hidden;
-      margin-top: 4px;
+      margin-top: 3px;
       border: 1px solid #38434E;
     }
     .health-bar-fill {
       height: 100%;
       width: 100%;
       background: #667353;
-      transition: width 0.2s ease;
+      transition: width 0.15s ease, background 0.2s ease;
     }
+    .health-bar-fill.low { background: #C84C4C; }
+    #hud-health-text { font-size: 9px; color: #81919E; margin-top: 2px; }
     .ammo-display {
       font-size: 14px;
       color: #E7A83E;
       font-weight: bold;
-      margin-top: 4px;
+      margin-top: 2px;
+      letter-spacing: 1px;
+    }
+    .ammo-display.empty { color: #C84C4C; }
+    .health-bar-fill.low { background: #C84C4C; }
+
+    /* OPTIONAL HIGH-CONTRAST HUD (tactical settings) */
+    body.high-contrast .health-bar-container,
+    body.high-contrast .mission-badge,
+    body.high-contrast .hud-interactive,
+    body.high-contrast .action-btn {
+      border-color: #F0E9DB;
+    }
+    body.high-contrast #hud-obj-title,
+    body.high-contrast #hud-obj-detail,
+    body.high-contrast #compass-distance,
+    body.high-contrast #hud-timer {
+      color: #FFFFFF;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+    }
+    body.high-contrast .crosshair::before,
+    body.high-contrast .crosshair::after {
+      background: #FFFFFF;
+    }
+    #hud-score {
+      font-size: 10px;
+      color: #38D39F;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-top: 1px;
+    }
+
+    /* TOP CENTRE: TIMER + WAYPOINT COMPASS */
+    .top-center {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    #hud-timer {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #F0E9DB;
+      background: rgba(32, 38, 44, 0.85);
+      border: 1.5px solid #38434E;
+      border-radius: 5px;
+      padding: 3px 12px;
+    }
+    .compass {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+    .compass-ring {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(56, 211, 159, 0.65);
+      background: rgba(17, 20, 23, 0.7);
+      position: relative;
+      box-shadow: 0 0 10px rgba(56, 211, 159, 0.18);
+    }
+    #compass-arrow {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      width: 0;
+      height: 0;
+      margin-left: -6px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 13px solid #38D39F;
+      transform-origin: 50% 15px;
+    }
+    #compass-distance {
+      font-size: 9px;
+      color: #38D39F;
+      font-weight: bold;
       letter-spacing: 1px;
     }
 
-    /* CROSSHAIR */
+    /* CROSSHAIR + HIT CONFIRMATION */
     .crosshair {
       position: absolute;
       top: 50%;
@@ -131,18 +255,13 @@
       position: absolute;
       background: #E7A83E;
     }
-    .crosshair::before {
-      top: 10px;
-      left: 0;
-      width: 22px;
-      height: 2px;
-    }
-    .crosshair::after {
-      top: 0;
-      left: 10px;
-      width: 2px;
-      height: 22px;
-    }
+    .crosshair::before { top: 10px; left: 0; width: 22px; height: 2px; }
+    .crosshair::after { top: 0; left: 10px; width: 2px; height: 22px; }
+    .crosshair.locked::before, .crosshair.locked::after { background: #C84C4C; }
+    .crosshair.locked .crosshair-dot { background: #C84C4C; }
+    .crosshair.crit::before { height: 3px; }
+    .crosshair.crit::after { width: 3px; }
+    .crosshair.legs::before, .crosshair.legs::after { background: #81919E; }
     .crosshair-dot {
       position: absolute;
       top: 9px;
@@ -152,25 +271,91 @@
       background: #E7A83E;
       border-radius: 50%;
     }
+    /* Aim readout: spells out what the ray is actually on. */
+    #crosshair-label {
+      position: absolute;
+      top: calc(50% + 22px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #C84C4C;
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+    }
+    .crosshair.crit + #crosshair-label { color: #FF6B5B; font-size: 11px; }
+    .crosshair.legs + #crosshair-label { color: #81919E; }
+
+    /* FLOATING DAMAGE NUMBERS (projected from world space) */
+    #damage-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 11;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .damage-number {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 15px;
+      font-weight: bold;
+      color: #F0E9DB;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.95);
+      animation: damageFloat 0.75s ease-out forwards;
+    }
+    .damage-number.crit {
+      font-size: 20px;
+      color: #FFB43E;
+    }
+    @keyframes damageFloat {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+      22% { opacity: 1; transform: translate(-50%, -70%) scale(1.12); }
+      100% { opacity: 0; transform: translate(-50%, -180%) scale(0.95); }
+    }
+    #hitmarker {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 12;
+    }
+    #hitmarker i { position: absolute; width: 9px; height: 2px; background: #F0E9DB; }
+    #hitmarker i:nth-child(1) { top: 5px; left: 3px; transform: rotate(45deg); }
+    #hitmarker i:nth-child(2) { top: 5px; right: 3px; transform: rotate(-45deg); }
+    #hitmarker i:nth-child(3) { bottom: 5px; left: 3px; transform: rotate(-45deg); }
+    #hitmarker i:nth-child(4) { bottom: 5px; right: 3px; transform: rotate(45deg); }
+    #hitmarker.show { animation: hitFlash 0.22s ease-out; }
+    #hitmarker.kill i { background: #C84C4C; }
+    @keyframes hitFlash {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    }
 
     /* TOUCH CONTROLS */
-    /* Virtual Joystick Area (Bottom Left) */
     #joystick-zone {
       position: absolute;
-      bottom: 24px;
-      left: 24px;
-      width: 140px;
-      height: 140px;
+      bottom: 22px;
+      left: 22px;
+      width: 132px;
+      height: 132px;
       border-radius: 50%;
-      background: rgba(32, 38, 44, 0.45);
+      background: rgba(32, 38, 44, 0.42);
       border: 2px solid rgba(129, 145, 158, 0.4);
       pointer-events: auto;
       touch-action: none;
     }
     #joystick-knob {
       position: absolute;
-      top: 42px;
-      left: 42px;
+      top: 38px;
+      left: 38px;
       width: 56px;
       height: 56px;
       border-radius: 50%;
@@ -180,31 +365,31 @@
       pointer-events: none;
     }
 
-    /* Right Orbit / Aim Zone */
     #aim-touch-zone {
       position: absolute;
-      top: 80px;
+      top: 112px;
       bottom: 0;
       right: 0;
-      width: 55%;
+      width: 52%;
       pointer-events: auto;
       touch-action: none;
     }
 
-    /* Action Buttons (Bottom Right) */
+    /* ACTION CLUSTER */
     .action-cluster {
       position: absolute;
-      bottom: 24px;
-      right: 24px;
+      bottom: 22px;
+      right: 20px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 12px;
+      gap: 10px;
       pointer-events: auto;
+      z-index: 14;
     }
     .action-row {
       display: flex;
-      gap: 12px;
+      gap: 9px;
       align-items: center;
     }
     .btn-action {
@@ -218,25 +403,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      active {
-        transform: scale(0.92);
-      }
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
     }
     .btn-fire {
-      width: 72px;
-      height: 72px;
+      width: 68px;
+      height: 68px;
       background: #E7A83E;
       border: 2px solid #F0E9DB;
       font-size: 13px;
     }
     .btn-secondary {
-      width: 54px;
-      height: 54px;
+      width: 50px;
+      height: 50px;
       background: rgba(42, 50, 58, 0.95);
       border: 1.5px solid #81919E;
       color: #F0E9DB;
-      font-size: 11px;
+      font-size: 10px;
     }
     .btn-secondary:active, .btn-fire:active {
       transform: scale(0.92);
@@ -259,10 +441,187 @@
       50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(56, 211, 159, 0.8); }
     }
 
-    /* DIALOGUE MODAL */
+    /* RELOAD STATE */
+    #reload-panel {
+      position: absolute;
+      right: 24px;
+      bottom: 168px;
+      width: 168px;
+      background: rgba(32, 38, 44, 0.92);
+      border: 1.5px solid #E7A83E;
+      border-radius: 6px;
+      padding: 6px 9px;
+      display: none;
+      z-index: 13;
+    }
+    #reload-panel.active { display: block; }
+    .reload-track {
+      height: 6px;
+      background: #1B2822;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid #38434E;
+    }
+    #reload-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #E7A83E;
+    }
+    #reload-label {
+      font-size: 9px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #E7A83E;
+      margin-top: 3px;
+    }
+    #ammo-warning {
+      position: absolute;
+      left: 50%;
+      bottom: 44%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #C84C4C;
+      text-shadow: 0 0 8px rgba(200, 76, 76, 0.6);
+      display: none;
+      z-index: 12;
+    }
+
+    /* FIELD RESUPPLY CONFIRMATION */
+    .pickup-toast {
+      position: absolute;
+      left: 50%;
+      bottom: 31%;
+      transform: translate(-50%, 8px);
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #F0E9DB;
+      background: rgba(17, 20, 23, 0.84);
+      border: 1px solid #35423C;
+      border-radius: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 13;
+    }
+    .pickup-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* BOSS HEALTH STRIP */
+    #boss-bar {
+      position: absolute;
+      top: 96px;
+      left: 50%;
+      transform: translate(-50%, -6px);
+      width: min(62%, 420px);
+      padding: 8px 12px 10px;
+      background: rgba(15, 18, 21, 0.82);
+      border: 1px solid #5A2E2E;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 12;
+    }
+    #boss-bar.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    #boss-name {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #E8A0A0;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .boss-track {
+      height: 8px;
+      background: #2A2024;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #boss-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #C84C4C, #E7A83E);
+      transition: width 0.18s ease;
+    }
+
+    /* MODALS */
+    .modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 540px;
+      background: rgba(32, 38, 44, 0.97);
+      border-radius: 12px;
+      padding: 20px;
+      display: none;
+      pointer-events: auto;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.65);
+      z-index: 200;
+    }
+    .modal.show { display: block; }
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-align: center;
+    }
+    .modal-sub {
+      font-size: 10px;
+      color: #81919E;
+      text-align: center;
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
+    .modal-copy {
+      font-size: 12px;
+      color: #F0E9DB;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    .modal-btn {
+      background: #E7A83E;
+      color: #111417;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 7px;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+    .modal-btn.ghost {
+      background: transparent;
+      border: 1.5px solid #81919E;
+      color: #F0E9DB;
+    }
+    .modal-btn.danger {
+      background: #C84C4C;
+      color: #F0E9DB;
+    }
+    .modal-btn:active { transform: scale(0.97); }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .modal-actions .modal-btn { flex: 1; }
+
+    /* DIALOGUE */
     #dialogue-modal {
       position: absolute;
-      bottom: 24px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
@@ -270,24 +629,25 @@
       background: rgba(32, 38, 44, 0.96);
       border: 2px solid #E7A83E;
       border-radius: 12px;
-      padding: 18px;
+      padding: 16px;
       display: none;
-      z-index: 100;
+      z-index: 210;
       pointer-events: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     }
+    #dialogue-modal.show { display: block; }
     .dialogue-speaker {
       color: #E7A83E;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       letter-spacing: 1px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .dialogue-text {
       color: #F0E9DB;
-      font-size: 13px;
-      line-height: 1.4;
-      margin-bottom: 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      margin-bottom: 12px;
     }
     .dialogue-btn {
       background: #E7A83E;
@@ -298,85 +658,84 @@
       font-family: inherit;
       font-weight: bold;
       float: right;
-      cursor: pointer;
     }
 
-    /* TACTICAL CHOICE MODAL */
-    #choice-modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 580px;
-      background: rgba(32, 38, 44, 0.98);
-      border: 2px solid #C84C4C;
-      border-radius: 12px;
-      padding: 22px;
-      display: none;
-      z-index: 200;
-      pointer-events: auto;
-      text-align: center;
-      box-shadow: 0 0 40px rgba(200, 76, 76, 0.5);
-    }
+    /* CHOICE CARDS */
     .choice-options-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 18px;
+      gap: 12px;
+      margin-top: 14px;
     }
     .choice-card {
       background: #20262C;
       border: 1.5px solid #81919E;
       border-radius: 8px;
-      padding: 14px;
+      padding: 12px;
       cursor: pointer;
       text-align: left;
-      transition: all 0.2s;
     }
-    .choice-card:active {
-      transform: scale(0.97);
-    }
-    .choice-card.civilians {
-      border-color: #667353;
-    }
-    .choice-card.intel {
-      border-color: #E7A83E;
-    }
+    .choice-card:active { transform: scale(0.97); }
+    .choice-card.civilians { border-color: #667353; }
+    .choice-card.intel { border-color: #E7A83E; }
+    .choice-tag { font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+    .choice-label { font-size: 12px; font-weight: bold; color: #F0E9DB; margin-top: 3px; }
+    .choice-summary { font-size: 10.5px; color: #9AA8B5; margin-top: 5px; line-height: 1.35; }
 
-    /* MISSION COMPLETE OVERLAY */
-    #victory-modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(32, 38, 44, 0.98);
-      border: 2px solid #38D39F;
-      border-radius: 14px;
-      padding: 24px;
-      display: none;
-      z-index: 300;
-      pointer-events: auto;
+    /* VICTORY / DEFEAT / PAUSE */
+    #victory-modal { border: 2px solid #38D39F; }
+    #victory-modal .modal-title { color: #38D39F; letter-spacing: 2px; }
+    #defeat-modal { border: 2px solid #C84C4C; }
+    #defeat-modal .modal-title { color: #C84C4C; letter-spacing: 2px; }
+    #pause-modal { border: 2px solid #81919E; }
+    .result-grid {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      gap: 8px;
+    }
+    .result-cell {
+      flex: 1;
       text-align: center;
+      background: #1A1F24;
+      border: 1px solid #38434E;
+      border-radius: 7px;
+      padding: 8px 4px;
     }
+    .result-label { font-size: 9px; color: #81919E; letter-spacing: 1px; }
+    .result-value { font-size: 15px; font-weight: bold; color: #F0E9DB; margin-top: 3px; }
+    .result-value.stars { color: #E7A83E; letter-spacing: 2px; }
 
-    /* DAMAGE VIGNETTE */
+    /* DAMAGE + SCAN + LOW HEALTH */
     #damage-flash {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle, transparent 60%, rgba(200, 76, 76, 0.6) 100%);
+      background: radial-gradient(circle, transparent 55%, rgba(200, 76, 76, 0.65) 100%);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.15s ease-out;
-      z-index: 5;
+      z-index: 8;
     }
-
-    /* RADAR SCANNER OVERLAY */
+    #low-health {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(200, 76, 76, 0.55);
+      box-shadow: inset 0 0 40px rgba(200, 76, 76, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 7;
+    }
+    #low-health.active { animation: lowPulse 1.4s infinite; }
+    @keyframes lowPulse {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.75; }
+    }
     #scanner-overlay {
       position: absolute;
       top: 0;
@@ -385,111 +744,345 @@
       height: 100%;
       pointer-events: none;
       border: 2px solid transparent;
-      z-index: 4;
+      z-index: 6;
       transition: border-color 0.3s;
     }
     .scanner-active {
       border-color: rgba(56, 211, 159, 0.4) !important;
       box-shadow: inset 0 0 40px rgba(56, 211, 159, 0.25);
     }
+
+    /* CHAPTE R CARD */
+    #boot-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111417;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      pointer-events: none;
+      animation: bootFade 2.6s ease-in forwards;
+    }
+    @keyframes bootFade {
+      0% { opacity: 1; }
+      72% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+    #boot-chapter {
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      color: #E7A83E;
+    }
+    #boot-title {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      text-align: center;
+      padding: 0 18px;
+    }
+    #boot-sector {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #81919E;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .high-contrast .mission-badge,
+    .high-contrast .telemetry-panel,
+    .high-contrast #hud-timer {
+      background: rgba(10, 12, 14, 0.98);
+      border-color: #F0E9DB;
+    }
+
+    /* DEPLOYMENT / CHAPTER SELECT */
+    #deploy-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      padding: 26px max(18px, 6vw) 22px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(231, 168, 62, 0.12), transparent 55%),
+        linear-gradient(180deg, #0D1114 0%, #12181C 60%, #0B0E11 100%);
+      overflow-y: auto;
+    }
+    #deploy-screen.show { display: flex; }
+    .deploy-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid #2A3138;
+      padding-bottom: 12px;
+    }
+    .deploy-title {
+      font-size: 19px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #F0E9DB;
+    }
+    .deploy-sub {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #E7A83E;
+      margin-top: 5px;
+    }
+    .deploy-progress {
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #38D39F;
+      border: 1px solid #38434E;
+      border-radius: 5px;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+    #deploy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .chapter-card {
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: rgba(32, 38, 44, 0.92);
+      border: 1px solid #38434E;
+      border-left: 4px solid #E7A83E;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+    .chapter-card:hover { transform: translateX(2px); border-color: #81919E; }
+    .chapter-card.selected {
+      background: rgba(231, 168, 62, 0.14);
+      border-color: #E7A83E;
+    }
+    .chapter-card.locked {
+      opacity: 0.42;
+      border-left-color: #434B53;
+      cursor: not-allowed;
+    }
+    .chapter-num {
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #E7A83E;
+    }
+    .chapter-card.locked .chapter-num { color: #81919E; }
+    .chapter-title {
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #F0E9DB;
+    }
+    .chapter-meta {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #81919E;
+      margin-top: 4px;
+    }
+    .chapter-state {
+      text-align: right;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .chapter-stars { color: #E7A83E; font-size: 13px; letter-spacing: 2px; }
+    .chapter-state.cleared { color: #38D39F; }
+    .chapter-state.locked-label { color: #81919E; }
+    .chapter-state.open-label { color: #E7A83E; }
+    .deploy-foot {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .deploy-foot .modal-btn { min-width: 150px; }
+    #deploy-hint {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #66727C;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <!-- 3D WebGL Canvas Container -->
+  <!-- 3D WebGL Canvas -->
   <div id="game-container"></div>
   <div id="damage-flash"></div>
+  <div id="low-health"></div>
   <div id="scanner-overlay"></div>
 
-  <!-- HUD Overlay -->
+  <!-- CHAPTER TITLE CARD -->
+  <div id="boot-card">
+    <div id="boot-chapter">CHAPTER 01</div>
+    <div id="boot-title">SIGNAL IN THE DUST</div>
+    <div id="boot-sector">SECTOR 4 // COASTAL RELAY OUTPOST</div>
+  </div>
+
+  <!-- HUD -->
   <div class="hud-layer">
-    <!-- Top Telemetry & Objective Bar -->
     <div class="top-bar">
       <div class="mission-badge">
-        <div class="badge-sub">TACTICAL OBJECTIVE</div>
+        <div id="hud-sector" class="badge-sub">TACTICAL OBJECTIVE</div>
         <div id="hud-obj-title" class="badge-title">REPORT TO TOMAS VALE</div>
-        <div id="hud-obj-detail" class="badge-detail">Navigate the obstacle gauntlet to the forward scout post.</div>
+        <div id="hud-obj-detail" class="badge-detail">Navigate the perimeter to the forward scout post.</div>
+        <div id="hud-obj-progress" class="badge-progress"></div>
       </div>
 
       <div class="telemetry-panel">
-        <div style="font-size: 11px; color: #81919E; font-weight: bold;">OPERATIVE VITALITY</div>
+        <div class="telemetry-head">
+          <span class="telemetry-label">OPERATIVE</span>
+          <button id="btn-pause" class="hud-interactive" aria-label="Pause">II</button>
+        </div>
         <div class="health-bar-container">
           <div id="hud-health-bar" class="health-bar-fill"></div>
         </div>
+        <div id="hud-health-text">100% VITALITY</div>
         <div id="hud-ammo-display" class="ammo-display">30 / 120</div>
+        <div id="hud-score">SCORE 0000</div>
       </div>
     </div>
 
-    <!-- Central Reticle -->
-    <div class="crosshair">
-      <div class="crosshair-dot"></div>
+    <div class="top-center">
+      <div id="hud-timer">00:00</div>
+      <div class="compass">
+        <div class="compass-ring"><div id="compass-arrow"></div></div>
+        <div id="compass-distance">--</div>
+      </div>
     </div>
 
-    <!-- Virtual Joystick for 3D Movement -->
-    <div id="joystick-zone">
-      <div id="joystick-knob"></div>
+    <!-- BOSS HEALTH STRIP -->
+    <div id="boss-bar">
+      <div id="boss-name">ARCHITECT COMMAND FRAME</div>
+      <div class="boss-track"><div id="boss-bar-fill"></div></div>
     </div>
 
-    <!-- Touch Aim Region for Camera Orbit & Look -->
+    <div class="crosshair"><div class="crosshair-dot"></div></div>
+    <div id="crosshair-label"></div>
+    <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+    <div id="damage-layer"></div>
+
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
     <div id="aim-touch-zone"></div>
 
-    <!-- Action Buttons Cluster -->
-    <div class="action-cluster">
-      <button id="btn-interact" class="hud-interactive btn-interact">INTERACT [TOMAS]</button>
+    <div id="reload-panel">
+      <div class="reload-track"><div id="reload-bar-fill"></div></div>
+      <div id="reload-label">RELOADING</div>
+    </div>
+    <div id="ammo-warning">MAGAZINE EMPTY</div>
+    <div id="pickup-toast" class="pickup-toast"></div>
 
+    <div class="action-cluster">
+      <button id="btn-interact" class="hud-interactive btn-interact">INTERACT</button>
       <div class="action-row">
-        <button id="btn-scan" class="hud-interactive btn-action btn-secondary">
-          SCAN
-        </button>
-        <button id="btn-jump" class="hud-interactive btn-action btn-secondary">
-          JUMP
-        </button>
-        <button id="btn-fire" class="hud-interactive btn-action btn-fire">
-          FIRE
-        </button>
+        <button id="btn-reload" class="hud-interactive btn-action btn-secondary">RELOAD</button>
+        <button id="btn-scan" class="hud-interactive btn-action btn-secondary">SCAN</button>
+        <button id="btn-jump" class="hud-interactive btn-action btn-secondary">JUMP</button>
+        <button id="btn-fire" class="hud-interactive btn-action btn-fire">FIRE</button>
       </div>
     </div>
   </div>
 
-  <!-- Dialogue Transmission Modal -->
+  <!-- DIALOGUE TRANSMISSION -->
   <div id="dialogue-modal">
     <div id="dialogue-speaker" class="dialogue-speaker">CAPTAIN MARA VOSS</div>
-    <div id="dialogue-text" class="dialogue-text">Spectre, the regional grid is down. Connect with Tomas and neutralize hostile drones.</div>
+    <div id="dialogue-text" class="dialogue-text">Spectre, the regional grid is down.</div>
     <button id="dialogue-next-btn" class="dialogue-btn">CONFIRM</button>
   </div>
 
-  <!-- Critical Branching Decision Modal -->
-  <div id="choice-modal">
-    <div style="font-size: 16px; font-weight: bold; color: #C84C4C; letter-spacing: 1.5px;">CRITICAL EMERGENCY OVERRIDE</div>
-    <div style="font-size: 12px; color: #F0E9DB; margin-top: 8px;">Auxiliary generator is venting coolant into the civilian shelter while saboteurs wipe stolen cipher frequency drives.</div>
-    <div class="choice-options-grid">
-      <div id="choice-civilians-btn" class="choice-card civilians">
-        <div style="font-size: 11px; font-weight: bold; color: #667353;">PROTOCOL ALPHA</div>
-        <div style="font-size: 13px; font-weight: bold; color: #F0E9DB; margin-top: 4px;">SAFEGUARD CIVILIANS</div>
-        <div style="font-size: 11px; color: #81919E; margin-top: 6px;">Vent pressure away from 40 trapped families. (+Morale, +Voss & Idris Trust)</div>
+  <!-- BRANCHING DECISION -->
+  <div id="choice-modal" class="modal">
+    <div id="choice-title" class="modal-title" style="color:#C84C4C;">CRITICAL EMERGENCY OVERRIDE</div>
+    <div id="choice-desc" class="modal-sub">Make your call, Spectre.</div>
+    <div id="choice-options" class="choice-options-grid"></div>
+  </div>
+
+  <!-- MISSION COMPLETE -->
+  <div id="victory-modal" class="modal">
+    <div class="modal-title">CHAPTER COMPLETE</div>
+    <div id="victory-sub" class="modal-sub">OPERATION EMBERWATCH // AFTER-ACTION</div>
+    <div class="result-grid">
+      <div class="result-cell">
+        <div class="result-label">RATING</div>
+        <div id="victory-stars" class="result-value stars">&#9733;&#9733;&#9733;</div>
       </div>
-      <div id="choice-intel-btn" class="choice-card intel">
-        <div style="font-size: 11px; font-weight: bold; color: #E7A83E;">PROTOCOL BRAVO</div>
-        <div style="font-size: 13px; font-weight: bold; color: #F0E9DB; margin-top: 4px;">INTERCEPT ENCRYPTED DATA</div>
-        <div style="font-size: 11px; color: #81919E; margin-top: 6px;">Overclock receiver to capture the enemy frequency codes. (+Intel, -Rowan Rivalry)</div>
+      <div class="result-cell">
+        <div class="result-label">TIME</div>
+        <div id="victory-time" class="result-value">00:00</div>
       </div>
+      <div class="result-cell">
+        <div class="result-label">SCORE</div>
+        <div id="victory-score" class="result-value">0000</div>
+      </div>
+    </div>
+    <div class="modal-copy" id="victory-copy">Objective secure. Standing by to transmit the after-action report.</div>
+    <div class="modal-actions">
+      <button id="victory-continue-btn" class="modal-btn">TRANSMIT TO HEADQUARTERS</button>
     </div>
   </div>
 
-  <!-- Mission Success Victory Modal -->
-  <div id="victory-modal">
-    <div style="font-size: 20px; font-weight: bold; color: #38D39F; letter-spacing: 2px;">EXTRACTION COMPLETE</div>
-    <div style="font-size: 12px; color: #E7A83E; margin-top: 4px; font-weight: bold;">OPERATION: EMBERWATCH // CHAPTER 1 DEBRIEF</div>
-    <div style="font-size: 13px; color: #F0E9DB; margin: 16px 0; line-height: 1.5;">
-      Relay Tower Alpha secured. Hostile reconnaissance drones eliminated. Cadet Operative promotion approved.
+  <!-- OPERATIVE DOWN -->
+  <div id="defeat-modal" class="modal">
+    <div class="modal-title">OPERATIVE DOWN</div>
+    <div class="modal-sub">MEDICAL EVAC SIGNAL LOST</div>
+    <div class="modal-copy">Spectre-7 has been disabled in the field. Command can rerun the training simulation or extract you to the campaign terminal.</div>
+    <div class="modal-actions">
+      <button id="defeat-retry-btn" class="modal-btn">RETRY CHAPTER</button>
+      <button id="defeat-abort-btn" class="modal-btn ghost">ABORT TO HQ</button>
     </div>
-    <button id="victory-continue-btn" class="dialogue-btn" style="float: none; width: 100%; padding: 12px; font-size: 13px;">
-      TRANSMIT TO HEADQUARTERS
-    </button>
   </div>
 
-  <!-- Load bundled local Three.js -->
+  <!-- PAUSE -->
+  <div id="pause-modal" class="modal">
+    <div class="modal-title">SIMULATION PAUSED</div>
+    <div id="pause-sub" class="modal-sub">CHAPTER 01 // SIGNAL IN THE DUST</div>
+    <div class="modal-copy">Recon feed is frozen. Resume when you are ready to continue the operation.</div>
+    <div class="modal-actions">
+      <button id="pause-resume-btn" class="modal-btn">RESUME</button>
+    </div>
+    <div class="modal-actions">
+      <button id="pause-restart-btn" class="modal-btn ghost">RESTART CHAPTER</button>
+      <button id="pause-chapter-btn" class="modal-btn ghost">CHAPTER SELECT</button>
+      <button id="pause-abort-btn" class="modal-btn danger">ABORT TO HQ</button>
+    </div>
+  </div>
+
+  <!-- DEPLOYMENT / CHAPTER SELECT (browser build only: the Android host always
+       supplies a mission id, so this screen is never shown inside the app) -->
+  <div id="deploy-screen">
+    <div class="deploy-head">
+      <div>
+        <div class="deploy-title">OPERATION: EMBERWATCH</div>
+        <div class="deploy-sub" id="deploy-sub">CHAPTER SELECT // SPECTRE-7</div>
+      </div>
+      <div class="deploy-progress" id="deploy-progress">0 / 10 CLEARED</div>
+    </div>
+    <div id="deploy-list"></div>
+    <div class="deploy-foot">
+      <button id="deploy-resume-btn" class="modal-btn ghost" hidden>RESUME RUN</button>
+      <button id="deploy-unlock-btn" class="modal-btn ghost">UNLOCK ALL CHAPTERS</button>
+      <button id="deploy-start-btn" class="modal-btn">BEGIN CHAPTER</button>
+    </div>
+    <div id="deploy-hint">Select a chapter, then deploy. Progress is stored on this device.</div>
+  </div>
+
+  <!-- Bundled local Three.js, then chapter data, then the engine -->
   <script src="three.min.js"></script>
-  <!-- Load complete 3D game logic -->
+  <script src="levels.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

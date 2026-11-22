@@ -38,7 +38,7 @@ class GameEngine {
             id = "TARGET_TOMAS",
             title = "Tomas Vale (Recon)",
             prompt = "REPORT TO TOMAS",
-            position = Vector2(380f, 300f),
+            position = Vector2(400f, 385f),
             interactionRadius = 70f,
             type = InteractiveType.SQUAD_MEMBER
         ),
@@ -72,7 +72,7 @@ class GameEngine {
         InteractiveTarget(
             id = "TARGET_EXTRACTION",
             title = "LZ Falcon Extraction Beacon",
-            prompt = "TRANSMIT EXTRACTION FLARE",
+            prompt = "DEPLOY EXTRACTION FLARE",
             position = Vector2(220f, 660f),
             interactionRadius = 80f,
             type = InteractiveType.EXTRACTION_BEACON,
@@ -90,31 +90,31 @@ class GameEngine {
         TacticalObjective(
             id = "OBJ_RECON",
             title = "Link up with Recon Specialist",
-            detail = "Proceed east past the perimeter gate to meet Tomas Vale.",
-            targetPosition = Vector2(380f, 300f)
+            detail = "Meet Tomas Vale behind the sandbag emplacement.",
+            targetPosition = Vector2(400f, 385f)
         ),
         TacticalObjective(
             id = "OBJ_SCAN_RELAY",
             title = "Scan Damaged Relay Tower Alpha",
-            detail = "Use your Field Scanner to inspect the damaged transmitter dishes.",
+            detail = "Use the Field Scanner to analyze telemetry array sabotage.",
             targetPosition = Vector2(600f, 240f)
         ),
         TacticalObjective(
             id = "OBJ_GENERATOR",
             title = "Investigate Overloading Generator",
-            detail = "Follow the power cables southeast to the smoking auxiliary generator vault.",
+            detail = "Inspect the auxiliary power manifold overheating near the civilian fallout shelter.",
             targetPosition = Vector2(850f, 490f)
         ),
         TacticalObjective(
             id = "OBJ_DECISION",
             title = "Resolve Override Dilemma",
-            detail = "Decide whether to vent power into the civilian bunker or capture the saboteur drive.",
+            detail = "Vent power into the drainage sluice, or overclock the scanner for the saboteur's cipher data.",
             targetPosition = Vector2(980f, 560f)
         ),
         TacticalObjective(
             id = "OBJ_EXTRACTION",
             title = "Extract at LZ Falcon",
-            detail = "Regroup at the coastal landing zone and deploy the extraction signal beacon.",
+            detail = "Deploy the extraction flare at the coastal cliff landing zone.",
             targetPosition = Vector2(220f, 660f)
         )
     )
@@ -277,6 +277,16 @@ class GameEngine {
         while (waveIter.hasNext()) {
             val wave = waveIter.next()
             wave.currentRadius += wave.speed * clampedDt
+
+            // A sweep confirms every structure the ring has physically reached.
+            for (target in interactiveTargets) {
+                if (target.isEnabled && !target.isInteracted && target.scannedAtSeconds < 0f &&
+                    wave.origin.distanceTo(target.position) <= wave.currentRadius
+                ) {
+                    target.scannedAtSeconds = timeElapsedSeconds
+                }
+            }
+
             if (wave.currentRadius >= wave.maxRadius) {
                 wave.isFinished = true
                 waveIter.remove()
@@ -319,5 +329,30 @@ class GameEngine {
                 }
             }
         }
+    }
+
+    /** True once a Field Scanner pulse has physically reached [target]. */
+    fun isScannerConfirmed(target: InteractiveTarget): Boolean = target.scannedAtSeconds >= 0f
+
+    /** The core-loop step the live objective chain is currently sitting in. */
+    val currentLoopStage: CampaignLoopStage
+        get() = CampaignLoop.stageForObjectiveId(objectives.getOrNull(currentObjectiveIndex)?.id)
+
+    /** Clears scanner confirmations so a replay has to sweep the outpost again. */
+    fun resetScanState() {
+        for (target in interactiveTargets) {
+            target.scannedAtSeconds = -1f
+        }
+    }
+
+    companion object {
+        /** Objective ids in completion order; mirrors the core-loop mapping. */
+        val OBJECTIVE_IDS: List<String> = listOf(
+            "OBJ_RECON",
+            "OBJ_SCAN_RELAY",
+            "OBJ_GENERATOR",
+            "OBJ_DECISION",
+            "OBJ_EXTRACTION"
+        )
     }
 }

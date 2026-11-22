@@ -1,0 +1,68 @@
+---
+description: Non-destructive architecture rules for Vanguard Academy 3D
+globs: ["**/*.kt", "**/*.json"]
+alwaysApply: true
+---
+
+# 00 — Core Architecture
+
+Applying Rules: [SEARCH_FIRST | NON_DESTRUCTIVE | STRICT_LOGIC | CORE]
+
+Full contract: `GAME_MASTER_SPEC.md`. Source of record:
+`docs/Military Game Design Plan.md`. This header is the short form every
+session reads first.
+
+## Response header
+
+Begin every response with:
+
+```
+Applying Rules: [SEARCH_FIRST | NON_DESTRUCTIVE | STRICT_LOGIC | <ACTIVE_MODULE>]
+```
+
+`<ACTIVE_MODULE>` ∈ CORE, PROGRESSION, GUNSMITH, COMBAT, NARRATIVE, META, UI.
+
+## Non-destructive rules
+
+1. NEVER replace or delete working code. Extend it.
+2. SEARCH FIRST — grep and semantic search before writing.
+3. EXTEND, DO NOT MUTATE. Smallest possible diff; new types over edited ones.
+4. PROTECT `MODULE_REGISTRY.json`. A `LOCKED_VERIFIED` module may not change its
+   public API or core logic without explicit human override.
+5. Keep every source file under 300 lines. No dead functions, no unused
+   imports.
+6. No hallucinated APIs — only rely on code that has been read.
+
+## Six-step sequence
+
+SCAN → PLAN → TEST CONTRACT → DOMAIN (`GameResult<T>`) → VIEW (EventBus) →
+VERIFY (type check, lint, contract audit, logs).
+
+## Where the code lives
+
+| Spec module | Package |
+| --- | --- |
+| Core | `com.example.game.vanguard.core` |
+| Progression | `com.example.game.vanguard.progression` |
+| Gunsmith | `com.example.game.vanguard.gunsmith` |
+| Combat | `com.example.game.vanguard.combat` |
+| Narrative | `com.example.game.vanguard.narrative` |
+| Meta | `com.example.game.vanguard.meta` |
+
+Reuse `com.example.game.combat` geometry (`Vec3`, `BallisticBody`,
+`BallisticsEngine`) rather than re-deriving it.
+
+## Rule partitions
+
+Keep each domain prompt scoped to one contract, so context does not drift:
+
+- `00-core-architecture` — this file: header, golden rules, sequencing.
+- `10-combat-ballistics` — six gates, hitboxes, stances, clearance.
+- `20-gunsmith-crafting` — seven sockets, part specs, barrel swaps.
+- `30-rank-narrative-fsm` — monotonic ranks, watchdog, dilemmas.
+- `40-meta-persistence` — UTC production queues, governance, session flow.
+
+## Verification
+
+`VanguardContractAudit.audit()` runs every contract case in-process. A module is
+only `LOCKED_VERIFIED` once that audit passes in full.

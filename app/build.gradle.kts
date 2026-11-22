@@ -17,7 +17,8 @@ android {
     minSdk = 24
     targetSdk = 36
     versionCode = 1
-    versionName = "1.0"
+    // Section 2.2: MAJOR.MINOR.PATCH, mirrored by launch.AppVersion.CURRENT.
+    versionName = "1.0.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

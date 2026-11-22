@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.PlayArrow
@@ -69,6 +70,16 @@ fun TitleScreen(
     onOpenRoster: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenExportSpec: () -> Unit,
+    onOpenAcademy: () -> Unit,
+    onOpenArmory: () -> Unit,
+    onOpenRanks: () -> Unit,
+    onOpenVanguard: () -> Unit,
+    onOpenTactical: () -> Unit,
+    onOpenValor: () -> Unit,
+    onOpenBalance: () -> Unit,
+    onOpenGdd: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenLaunch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Infinite transition for live background radar sweep
@@ -240,7 +251,7 @@ fun TitleScreen(
                 if (profile != null) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "OPERATIVE: ${profile.callsign}  |  RANK: ${profile.rankTitle}  |  XP: ${profile.experiencePoints}",
+                        text = "OPERATIVE: ${profile.callsign}  |  RANK: ${profile.rankTitle}  |  XP: ${profile.experiencePoints}  |  INTEL: ${profile.intel}",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = CoolSteel
@@ -269,7 +280,7 @@ fun TitleScreen(
                     Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if ((profile?.experiencePoints ?: 0) > 0) "CONTINUE CAMPAIGN" else "START MISSION 1: SIGNAL IN THE DUST",
+                        text = if ((profile?.experiencePoints ?: 0) > 0) "CONTINUE CAMPAIGN" else "OPEN OPERATIONS BOARD",
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
@@ -324,6 +335,213 @@ fun TitleScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onOpenAcademy,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                            .testTag("academy_button"),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = DeepGraphite.copy(alpha = 0.7f),
+                            contentColor = SignalAmber
+                        )
+                    ) {
+                        Text(
+                            text = "ACADEMY",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onOpenArmory,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                            .testTag("armory_button"),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = DeepGraphite.copy(alpha = 0.7f),
+                            contentColor = WeatheredIvory
+                        )
+                    ) {
+                        Text(
+                            text = "ARMORY",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onOpenRanks,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                            .testTag("ranks_button"),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = DeepGraphite.copy(alpha = 0.7f),
+                            contentColor = RadarCyan
+                        )
+                    ) {
+                        Text(
+                            text = "RANKS",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = onOpenVanguard,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("vanguard_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = RadarCyan
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.Assessment, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "VANGUARD SYSTEMS - CONTRACT AUDIT",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenTactical,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("tactical_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = SignalAmber
+                    )
+                ) {
+                    Text(
+                        text = "TACTICAL EVOLUTION - CAREER & CAMPAIGN",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenValor,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("valor_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = WeatheredIvory
+                    )
+                ) {
+                    Text(
+                        text = "ART / AUDIO / UI BIBLE - DIRECTION SHEET",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenBalance,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("balance_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = RadarCyan
+                    )
+                ) {
+                    Text(
+                        text = "CONTENT & BALANCE - WEAPONS, XP, MISSIONS",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenGdd,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("gdd_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = SignalAmber
+                    )
+                ) {
+                    Text(
+                        text = "GAME DESIGN DOCUMENT - STORY, RANKS, MODES",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenPlan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("plan_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = RadarCyan
+                    )
+                ) {
+                    Text(
+                        text = "IMPLEMENTATION PLAN - SYSTEMS, PHASES, GATES",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onOpenLaunch,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .testTag("launch_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphite.copy(alpha = 0.7f),
+                        contentColor = SignalAmber
+                    )
+                ) {
+                    Text(
+                        text = "LAUNCH & LIVE-OPS - BUILD, STORE, ROLLOUT",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 OutlinedButton(

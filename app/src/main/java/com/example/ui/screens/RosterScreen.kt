@@ -34,9 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.CampaignProfileEntity
 import com.example.game.MissionCatalog
+import com.example.game.SquadMemberDossier
+import com.example.ui.theme.AlertRed
 import com.example.ui.theme.CoolSteel
 import com.example.ui.theme.DeepGraphite
 import com.example.ui.theme.DeepGraphiteBorder
@@ -46,6 +50,7 @@ import com.example.ui.theme.WeatheredIvory
 
 @Composable
 fun RosterScreen(
+    profile: CampaignProfileEntity?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -98,6 +103,30 @@ fun RosterScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // FIELD RECORD — drives the standing meters below
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            RecordChip(
+                label = "RANK",
+                value = (profile?.rankTitle ?: "Junior Cadet").uppercase(),
+                modifier = Modifier.weight(1.4f)
+            )
+            RecordChip(
+                label = "XP",
+                value = "${profile?.experiencePoints ?: 0}",
+                modifier = Modifier.weight(1f)
+            )
+            RecordChip(
+                label = "MORALE",
+                value = "${profile?.morale ?: 100}%",
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // LIST OF SQUAD MEMBERS
         Column(
@@ -182,10 +211,130 @@ fun RosterScreen(
                                 fontSize = 10.sp,
                                 color = Color(member.uniformColor)
                             )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            StandingMeter(
+                                standing = standingFor(member, profile),
+                                modifier = Modifier.testTag("roster_standing_${member.key}")
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/** One squad relationship value read from the campaign profile. */
+private data class Standing(
+    val label: String,
+    val value: Int,
+    val color: Color,
+    val isRivalry: Boolean
+)
+
+private fun standingFor(member: SquadMemberDossier, profile: CampaignProfileEntity?): Standing {
+    val raw = when (member.key) {
+        "voss" -> profile?.vossTrust
+        "tomas" -> profile?.tomasSync
+        "leena" -> profile?.leenaAffinity
+        "idris" -> profile?.idrisRespect
+        "kade" -> profile?.kadeRivalry
+        else -> null
+    } ?: 50
+    val value = raw.coerceIn(0, 100)
+
+    // Kade's column tracks rivalry, so a low number is his good outcome.
+    if (member.key == "kade") {
+        val label = when {
+            value <= 25 -> "ALLIED"
+            value <= 50 -> "COMPETITIVE"
+            value <= 75 -> "HOSTILE"
+            else -> "HUNTING YOU"
+        }
+        return Standing(label, value, if (value <= 50) SignalAmber else AlertRed, true)
+    }
+
+    val label = when {
+        value >= 80 -> "TRUSTED"
+        value >= 60 -> "RELIABLE"
+        value >= 40 -> "NEUTRAL"
+        value >= 20 -> "WARY"
+        else -> "DISTRUSTFUL"
+    }
+    return Standing(label, value, if (value >= 60) SignalAmber else CoolSteel, false)
+}
+
+@Composable
+private fun StandingMeter(standing: Standing, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (standing.isRivalry) "RIVALRY" else "STANDING",
+                fontFamily = FontFamily.Monospace,
+                fontSize = 9.sp,
+                letterSpacing = 1.sp,
+                color = CoolSteel
+            )
+            Text(
+                text = standing.label,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+                fontSize = 9.sp,
+                letterSpacing = 1.sp,
+                color = standing.color
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(DeepGraphiteBorder)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(standing.value / 100f)
+                    .height(4.dp)
+                    .background(standing.color)
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecordChip(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(DeepGraphiteElevated)
+            .border(1.dp, DeepGraphiteBorder, RoundedCornerShape(8.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 9.sp,
+            letterSpacing = 1.sp,
+            color = CoolSteel
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = value,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            color = WeatheredIvory,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }

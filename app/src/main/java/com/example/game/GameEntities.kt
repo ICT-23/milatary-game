@@ -60,7 +60,12 @@ data class InteractiveTarget(
     val interactionRadius: Float = 60f,
     val type: InteractiveType,
     var isInteracted: Boolean = false,
-    var isEnabled: Boolean = true
+    var isEnabled: Boolean = true,
+    /**
+     * Time of the Field Scanner pulse that physically reached this structure,
+     * or a negative value while it has never been swept.
+     */
+    var scannedAtSeconds: Float = -1f
 )
 
 enum class InteractiveType {

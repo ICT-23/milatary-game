@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.game.MissionCatalog
 import com.example.game.MissionDossier
+import com.example.ui.theme.AlertRed
 import com.example.ui.theme.CoolSteel
 import com.example.ui.theme.DeepGraphite
 import com.example.ui.theme.DeepGraphiteBorder
@@ -55,6 +56,7 @@ fun BriefingScreen(
     dossier: MissionDossier = MissionCatalog.ALL_MISSIONS[0],
     onDeploy: (is3D: Boolean) -> Unit,
     onBack: () -> Unit,
+    allowTacticalMap: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -102,6 +104,13 @@ fun BriefingScreen(
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp,
                     color = CoolSteel
+                )
+                Text(
+                    text = "CORE LOOP 1/6 · STRATEGIC BRIEFING",
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 9.sp,
+                    color = SignalAmber
                 )
             }
 
@@ -204,6 +213,72 @@ fun BriefingScreen(
                             )
                         }
                     }
+
+                    // Ordered objective chain, straight from the design document.
+                    if (dossier.objectiveSequence.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "OBJECTIVE SEQUENCE",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                            color = SignalAmber,
+                            letterSpacing = 0.8.sp
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        dossier.objectiveSequence.forEachIndexed { index, step ->
+                            Text(
+                                text = "${index + 1}. $step",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 11.sp,
+                                lineHeight = 16.sp,
+                                color = WeatheredIvory
+                            )
+                        }
+                    }
+                }
+            }
+
+            // THREAT PROFILE
+            if (dossier.hostileIntel.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("briefing_threat_profile"),
+                    colors = CardDefaults.cardColors(containerColor = DeepGraphiteElevated),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Radar,
+                                contentDescription = null,
+                                tint = AlertRed,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "THREAT PROFILE",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = AlertRed,
+                                letterSpacing = 1.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        dossier.hostileIntel.forEach { intel ->
+                            Text(
+                                text = "• $intel",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 11.sp,
+                                lineHeight = 18.sp,
+                                color = WeatheredIvory
+                            )
+                        }
+                    }
                 }
             }
 
@@ -231,6 +306,50 @@ fun BriefingScreen(
                         fontSize = 11.sp,
                         lineHeight = 18.sp,
                         color = WeatheredIvory
+                    )
+                }
+            }
+
+            // PACE & PAY
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = DeepGraphiteElevated),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "OPERATIONAL PARAMETERS",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        color = SignalAmber,
+                        letterSpacing = 1.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    val parMinutes = dossier.parTimeSeconds / 60
+                    val parSeconds = dossier.parTimeSeconds % 60
+                    Text(
+                        text = "PAR TIME: %d:%02d (under par earns the speed star)".format(parMinutes, parSeconds),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        lineHeight = 18.sp,
+                        color = WeatheredIvory
+                    )
+                    Text(
+                        text = "STAR RULE: 1 completion • 2 with 60%+ health • 3 on par pace",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        lineHeight = 18.sp,
+                        color = CoolSteel
+                    )
+                    Text(
+                        text = "REWARD: ${dossier.rewardXp} XP • RECOMMENDED ${dossier.recommendedRank.uppercase()}",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        lineHeight = 18.sp,
+                        color = FieldOlive
                     )
                 }
             }
@@ -266,24 +385,26 @@ fun BriefingScreen(
                 )
             }
 
-            androidx.compose.material3.OutlinedButton(
-                onClick = { onDeploy(false) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
-                    .testTag("deploy_operative_button_2d"),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = DeepGraphiteElevated.copy(alpha = 0.8f),
-                    contentColor = CoolSteel
-                )
-            ) {
-                Text(
-                    text = "DEPLOY 2.5D TACTICAL MAP MODE",
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 11.sp
-                )
+            if (allowTacticalMap) {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { onDeploy(false) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .testTag("deploy_operative_button_2d"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = DeepGraphiteElevated.copy(alpha = 0.8f),
+                        contentColor = CoolSteel
+                    )
+                ) {
+                    Text(
+                        text = "DEPLOY 2.5D TACTICAL MAP MODE",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
+                }
             }
         }
     }
